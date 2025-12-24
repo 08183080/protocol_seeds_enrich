@@ -1,4 +1,4 @@
-# protocol_seeds_enrich
+# ProSeedsBench
 
 [English](README_en.md) | 中文
 
