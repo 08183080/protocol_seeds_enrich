@@ -15044,24 +15044,3 @@ Acknowledgement
 
    Funding for the RFC Editor function is currently provided by the
    Internet Society.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rosenberg, et. al.          Standards Track                   [Page 269]
-

@@ -5,7 +5,7 @@ import sys
 
 # --- 配置参数 ---
 # 搜索关键词：替换为你想要查询的产品或协议名称，例如 'proftpd'
-SEARCH_KEYWORD = "lightftpd"
+SEARCH_KEYWORD = "Exim"
 # NVD API 基础 URL
 NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 # 输出文件名

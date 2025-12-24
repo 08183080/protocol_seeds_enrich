@@ -54,12 +54,6 @@ Abstract
    Note that this specification is compatible with STD 9, RFC 959.
 
 
-
-Horowitz & Lunt             Standards Track                     [Page 1]
-
-RFC 2228                FTP Security Extensions             October 1997
-
-
 1.  Introduction
 
    The File Transfer Protocol (FTP) currently defined in STD 9, RFC 959
@@ -104,16 +98,6 @@ RFC 2228                FTP Security Extensions             October 1997
    security infrastructure and technology.  Extensions are necessary to
    the FTP specification if these security services are to be introduced
    into the protocol in an interoperable way.
-
-
-
-
-
-
-
-Horowitz & Lunt             Standards Track                     [Page 2]
-
-RFC 2228                FTP Security Extensions             October 1997
 
 
    Although the FTP control connection follows the Telnet protocol, and

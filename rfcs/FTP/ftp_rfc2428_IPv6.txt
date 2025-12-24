@@ -54,12 +54,6 @@ Abstract
    data transfer.
 
 
-
-Allman, et. al.             Standards Track                     [Page 1]
-
-RFC 2428            FTP Extensions for IPv6 and NATs      September 1998
-
-
    This document provides a specification for a way that FTP can
    communicate data connection endpoint information for network
    protocols other than IPv4.  In this specification, the FTP commands

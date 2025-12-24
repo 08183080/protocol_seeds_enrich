@@ -220,14 +220,6 @@ RFC 2326              Real Time Streaming Protocol            April 1998
    * Full Copyright Statement ....................................... 92
 
 
-
-
-
-Schulzrinne, et. al.        Standards Track                     [Page 4]
-
-RFC 2326              Real Time Streaming Protocol            April 1998
-
-
 1 Introduction
 
 1.1 Purpose
@@ -5127,29 +5119,3 @@ Full Copyright Statement
    BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
    HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
    MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Schulzrinne, et. al.        Standards Track                    [Page 92]
-

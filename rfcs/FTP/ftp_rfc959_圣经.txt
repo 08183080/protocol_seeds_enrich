@@ -48,19 +48,6 @@ Status of this Memo
    section on the FTP model while reviewing the terminology.
 
 
-
-
-
-
-
-Postel & Reynolds                                               [Page 1]
-
-
-                                                                        
-RFC 959                                                     October 1985
-File Transfer Protocol
-
-
    2.1.  HISTORY
 
       FTP has had a long evolution over the years.  Appendix III is a
@@ -3858,42 +3845,6 @@ File Transfer Protocol
 
    Padlipsky, Michael, "FTP Unique-Named Store Command", RFC 949, MITRE,
    July 1985.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Postel & Reynolds                                              [Page 68]
-
-
-                                                                        
-RFC 959                                                     October 1985
-File Transfer Protocol
-
-
-REFERENCES
-
-   [1]  Feinler, Elizabeth, "Internet Protocol Transition Workbook",
-        Network Information Center, SRI International, March 1982.
-
-   [2]  Postel, Jon, "Transmission Control Protocol - DARPA Internet
-        Program Protocol Specification", RFC 793, DARPA, September 1981.
-
-   [3]  Postel, Jon, and Joyce Reynolds, "Telnet Protocol
-        Specification", RFC 854, ISI, May 1983.
-
-   [4]  Reynolds, Joyce, and Jon Postel, "Assigned Numbers", RFC 943,
-        ISI, April 1985.
-
 
 
 
