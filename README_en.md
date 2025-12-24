@@ -9,40 +9,44 @@ Network protocol fuzzing can be categorized into generation-based and mutation-b
 ## Directory Structure
 ```
 ProSeedsBench/
-├── codes/              # Protocol code files
-│   ├── DAAP/
-│   ├── FTP/
-│   ├── HTTP/
-│   ├── RTSP/
-│   ├── SIP/
-│   ├── SMTP/
-│   └── README.md
-├── cves/               # CVE vulnerability information
-│   ├── FTP/
-│   ├── HTTP/
-│   ├── RTSP/
-│   ├── SIP/
-│   ├── SMTP/
-│   ├── get_cves.py
-│   └── README.MD
-├── deepwikis/          # Protocol deep knowledge base
-│   ├── DAAP/
-│   ├── FTP/
-│   ├── HTTP/
-│   ├── RTSP/
-│   ├── SIP/
-│   ├── SMTP/
+├── data/               # Protocol knowledge base data
+│   ├── codes/          # Protocol code files
+│   │   ├── DAAP/
+│   │   ├── FTP/
+│   │   ├── HTTP/
+│   │   ├── RTSP/
+│   │   ├── SIP/
+│   │   ├── SMTP/
+│   │   └── README.md
+│   ├── cves/           # CVE vulnerability information
+│   │   ├── FTP/
+│   │   ├── HTTP/
+│   │   ├── RTSP/
+│   │   ├── SIP/
+│   │   ├── SMTP/
+│   │   ├── get_cves.py
+│   │   └── README.MD
+│   ├── deepwikis/      # Protocol deep knowledge base
+│   │   ├── DAAP/
+│   │   ├── FTP/
+│   │   ├── HTTP/
+│   │   ├── RTSP/
+│   │   ├── SIP/
+│   │   ├── SMTP/
+│   │   └── README.md
+│   ├── rfcs/           # RFC documents
+│   │   ├── FTP/
+│   │   ├── HTTP/
+│   │   ├── RTSP/
+│   │   ├── SIP/
+│   │   ├── SMTP/
+│   │   └── README.md
 │   └── README.md
 ├── docs/               # Project documentation
 │   ├── Implementation_Roadmap.md
-│   └── LLM_Enrichment_Strategy.md
+│   ├── LLM_Enrichment_Strategy.md
+│   └── README.MD
 ├── papers/             # Related papers
-├── rfcs/               # RFC documents
-│   ├── FTP/
-│   ├── HTTP/
-│   ├── RTSP/
-│   ├── SIP/
-│   ├── SMTP/
 │   └── README.md
 ├── seeds/              # Protocol seed files
 │   ├── DAAP/
@@ -50,9 +54,11 @@ ProSeedsBench/
 │   ├── HTTP/
 │   ├── RTSP/
 │   ├── SIP/
-│   └── SMTP/
+│   ├── SMTP/
+│   └── README.MD
 ├── protocols.xlsx      # Protocol information table
-└── README.md           # Project documentation
+├── README.md           # Project documentation (Chinese)
+└── README_en.md        # Project documentation (English)
 ```
 
 ## Changelog
