@@ -1,0 +1,64 @@
+# ChatAFL 种子丰富方法配置文件示例
+# 复制此文件为 config.yaml 并修改相应配置
+
+# ==================== 必需配置 ====================
+
+# 协议名称 (如 RTSP, FTP, HTTP, SMTP, SIP)
+protocol: RTSP
+
+# 种子文件目录路径
+seed_dir: ../seeds/RTSP
+
+# ==================== 可选配置 ====================
+
+# 输出目录路径（如果不设置，默认为 seed_dir/enriched）
+output_dir: ./enriched_seeds/RTSP
+
+# ==================== API 配置 ====================
+
+# 是否使用本地模型（如 Ollama）（默认: false）
+# 如果设置为 true，将使用本地部署的模型，api_key 可以为空
+use_local: false
+
+# API URL（可选）
+# - 对于 OpenAI: 使用默认值或设置为 https://api.openai.com/v1
+# - 对于本地 Ollama: 
+#   * 如果 Ollama 运行在同一机器: http://localhost:11434/v1
+#   * 如果 Ollama 运行在 WSL 宿主机（Windows）: 留空或设置为 http://localhost:11434/v1
+#     程序会自动检测 WSL 宿主机 IP
+# - 对于其他兼容 API: 设置为相应的 API 地址
+# api_url: http://localhost:11434/v1
+
+# API Key（如果不设置，将从环境变量 OPENAI_API_KEY 读取）
+# - OpenAI: 需要有效的 API key
+# - 本地 Ollama: 可以为空或设置为 "ollama"
+# 建议使用环境变量而不是直接写在配置文件中
+# api_key: sk-your-api-key-here
+
+# 使用的模型名称
+# - OpenAI: gpt-3.5-turbo-instruct, gpt-4, 等
+# - Ollama: llama2, mistral, qwen, 等（需要先下载模型）
+model: gpt-3.5-turbo-instruct
+
+# ==================== 高级配置 ====================
+# 这些配置对应 ChatAFLEnricher 类中的常量
+
+advanced:
+  # 一致性检查的查询次数（默认: 3）
+  # 用于获取协议消息类型时的重复查询次数，确保结果一致性
+  confident_times: 3
+  
+  # 每次最多添加的消息类型数（默认: 2）
+  # 在丰富种子时，一次最多添加多少个缺失的消息类型
+  max_enrichment_message_types: 2
+  
+  # 最多检查的种子数（默认: 10）
+  # 在分析现有种子时，最多检查多少个种子文件
+  max_enrichment_corpus_size: 10
+  
+  # 丰富操作的最大重试次数（默认: 5）
+  enrichment_retries: 5
+  
+  # 获取消息类型的最大重试次数（默认: 5）
+  message_type_retries: 5
+

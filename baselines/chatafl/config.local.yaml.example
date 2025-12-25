@@ -1,0 +1,37 @@
+# ChatAFL 本地模型配置示例（Ollama）
+# 使用本地部署的 Ollama 模型
+
+# ==================== 必需配置 ====================
+
+protocol: RTSP
+seed_dir: ../seeds/RTSP
+
+# ==================== API 配置 ====================
+
+# 使用本地模型
+use_local: true
+
+# Ollama 的 API URL（默认: http://localhost:11434/v1）
+api_url: http://localhost:11434/v1
+
+# API Key（Ollama 不需要，可以为空或设置为 "ollama"）
+api_key: ollama
+
+# 使用的本地模型名称
+# 常见模型: llama2, mistral, qwen, llama3, phi, gemma 等
+# 使用前需要先下载模型: ollama pull llama2
+model: llama2
+
+# ==================== 可选配置 ====================
+
+output_dir: ./enriched_seeds/RTSP
+
+# ==================== 高级配置 ====================
+
+advanced:
+  confident_times: 3
+  max_enrichment_message_types: 2
+  max_enrichment_corpus_size: 10
+  enrichment_retries: 5
+  message_type_retries: 5
+
