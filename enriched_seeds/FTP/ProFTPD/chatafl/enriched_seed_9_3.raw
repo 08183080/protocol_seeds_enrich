@@ -1,0 +1,8 @@
+USER ubuntu
+PASS ubuntu
+EPSV
+LIST
+STAT
+PWD
+SITE
+QUIT

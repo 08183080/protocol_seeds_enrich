@@ -1,0 +1,11 @@
+USER ubuntu
+PASS ubuntu
+TYPE A
+SIZE test.txt
+SITE currentdir
+TYPE E
+SIZE test.txt
+PWD
+TYPE I
+SIZE test.txt
+QUIT

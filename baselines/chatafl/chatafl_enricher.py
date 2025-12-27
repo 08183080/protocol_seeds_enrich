@@ -57,9 +57,43 @@ class ChatAFLEnricher:
     MAX_ENRICHMENT_CORPUS_SIZE = 10  # 最多检查的种子数
     ENRICHMENT_RETRIES = 5
     MESSAGE_TYPE_RETRIES = 5
+    MAX_ENRICHED_SEEDS_PER_FILE = 1  # 每个原始种子最多生成的丰富种子数量
+    
+    # 协议消息类型硬编码字典
+    PROTOCOL_MESSAGE_TYPES = {
+        "FTP": {
+            "USER", "PASS", "ACCT", "CWD", "CDUP", "SMNT", "QUIT", "REIN",
+            "PORT", "PASV", "TYPE", "STRU", "MODE", "RETR", "STOR", "STOU",
+            "APPE", "ALLO", "REST", "RNFR", "RNTO", "ABOR", "DELE", "RMD",
+            "MKD", "PWD", "LIST", "NLST", "SITE", "SYST", "STAT", "HELP",
+            "NOOP", "FEAT", "OPTS", "MLSD", "MLST", "SIZE", "MDTM", "XCUP",
+            "XMKD", "XPWD", "XCWD"
+        },
+        "RTSP": {
+            "DESCRIBE", "ANNOUNCE", "GET_PARAMETER", "OPTIONS", "PAUSE",
+            "PLAY", "RECORD", "REDIRECT", "SETUP", "SET_PARAMETER", "TEARDOWN"
+        },
+        "HTTP": {
+            "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH",
+            "TRACE", "CONNECT", "PROPFIND", "PROPPATCH", "MKCOL", "COPY",
+            "MOVE", "LOCK", "UNLOCK", "SEARCH"
+        },
+        "SMTP": {
+            "HELO", "EHLO", "MAIL", "RCPT", "DATA", "RSET", "VRFY",
+            "EXPN", "HELP", "NOOP", "QUIT", "STARTTLS", "AUTH"
+        },
+        "SIP": {
+            "INVITE", "ACK", "BYE", "CANCEL", "REGISTER", "OPTIONS",
+            "INFO", "PRACK", "UPDATE", "REFER", "SUBSCRIBE", "NOTIFY",
+            "PUBLISH", "MESSAGE"
+        },
+        "DAAP": {
+            "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"
+        }
+    }
     
     def __init__(self, api_key: Optional[str] = None, 
-                 model: str = "gpt-3.5-turbo-instruct",
+                 model: str = "gpt-3.5-turbo",
                  api_url: Optional[str] = None,
                  use_local: bool = False):
         """
@@ -104,7 +138,7 @@ class ChatAFLEnricher:
         
         self.model = model
         
-    def chat_with_llm(self, prompt: str, model_type: str = "instruct", 
+    def chat_with_llm(self, prompt: str, model_type: str = "chat", 
                      temperature: float = 0.5, max_retries: int = 5) -> Optional[str]:
         """
         与 LLM 交互（支持 OpenAI 和本地模型如 Ollama）
@@ -275,20 +309,29 @@ class ChatAFLEnricher:
     
     def construct_prompt_for_message_types(self, protocol_name: str) -> str:
         """
-        构建获取协议消息类型的提示词
+        构建获取协议消息类型的提示词（chat 格式）
+        
+        注意：此方法已废弃，协议消息类型现在从硬编码字典 PROTOCOL_MESSAGE_TYPES 获取。
+        保留此方法仅用于向后兼容。
         
         Args:
             protocol_name: 协议名称（如 "RTSP", "FTP"）
             
         Returns:
-            提示词字符串
+            Chat 格式的 messages（JSON 字符串）
         """
-        prompt = (
+        user_message = (
             f"In the {protocol_name} protocol, the message types are: \n\n"
             f"Desired format:\n"
             f"<comma_separated_list_of_states_in_uppercase_and_without_whitespaces>"
         )
-        return prompt
+        
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": user_message}
+        ]
+        
+        return json.dumps(messages)
     
     def construct_prompt_for_templates(self, protocol_name: str) -> str:
         """
@@ -336,7 +379,7 @@ class ChatAFLEnricher:
     
     def get_protocol_message_types(self, protocol_name: str) -> Set[str]:
         """
-        获取协议的所有消息类型（使用一致性检查）
+        获取协议的所有消息类型（从硬编码字典获取）
         
         Args:
             protocol_name: 协议名称
@@ -344,74 +387,18 @@ class ChatAFLEnricher:
         Returns:
             消息类型集合
         """
-        prompt = self.construct_prompt_for_message_types(protocol_name)
-        message_type_counter = Counter()
+        protocol_upper = protocol_name.upper()
         
-        print(f"提示词: {prompt}")
-        print(f"开始查询协议消息类型（将查询 {self.CONFIDENT_TIMES} 次以确保一致性）...")
-        
-        # 多次查询以确保一致性
-        successful_queries = 0
-        for i in range(self.CONFIDENT_TIMES):
-            print(f"  查询 {i+1}/{self.CONFIDENT_TIMES}...", end=" ")
-            answer = self.chat_with_llm(
-                prompt, 
-                model_type="instruct", 
-                temperature=0.5,
-                max_retries=self.MESSAGE_TYPE_RETRIES
-            )
-            
-            if answer is None:
-                print("失败（未收到响应）")
-                continue
-            
-            print(f"成功")
-            successful_queries += 1
-            
-            # 显示原始响应（用于调试）
-            if i == 0:  # 只显示第一次的完整响应
-                print(f"  原始响应: {answer[:200]}..." if len(answer) > 200 else f"  原始响应: {answer}")
-            
-            # 格式化答案
-            answer = self.format_string(answer)
-            
-            # 解析逗号分隔的消息类型
-            message_types = [self.format_string(mt.strip()) 
-                           for mt in answer.split(',')]
-            
-            # 过滤空字符串并转换为大写
-            parsed_types = [mt.upper() for mt in message_types if mt]
-            
-            if parsed_types:
-                print(f"  解析到的消息类型: {parsed_types}")
-                for mt in parsed_types:
-                    message_type_counter[mt] += 1
-            else:
-                print(f"  警告: 无法从响应中解析消息类型")
-                print(f"  响应内容: {answer[:100]}...")
-        
-        print(f"\n成功查询次数: {successful_queries}/{self.CONFIDENT_TIMES}")
-        print(f"消息类型统计: {dict(message_type_counter)}")
-        
-        # 只保留出现次数 >= 0.5 * CONFIDENT_TIMES 的消息类型
-        threshold = 0.5 * self.CONFIDENT_TIMES
-        result = {mt for mt, count in message_type_counter.items() 
-                 if count >= threshold}
-        
-        print(f"协议 {protocol_name} 的消息类型（出现次数 >= {threshold}）: {sorted(result)}")
-        
-        if not result:
-            print("\n警告: 未能获取到协议消息类型！")
-            print("可能的原因:")
-            print("  1. LLM 调用失败或超时")
-            print("  2. LLM 返回的格式不符合预期")
-            print("  3. 本地模型未正确响应")
-            print("\n建议:")
-            print("  1. 检查本地模型服务是否正常运行")
-            print("  2. 尝试手动测试模型连接: python test_local_model.py")
-            print("  3. 检查模型是否能正确理解提示词")
-        
-        return result
+        # 从硬编码字典获取
+        if protocol_upper in self.PROTOCOL_MESSAGE_TYPES:
+            message_types = self.PROTOCOL_MESSAGE_TYPES[protocol_upper]
+            print(f"协议 {protocol_name} 的消息类型（从字典获取）: {sorted(message_types)}")
+            return message_types
+        else:
+            print(f"警告: 协议 {protocol_name} 不在支持的协议列表中")
+            print(f"支持的协议: {list(self.PROTOCOL_MESSAGE_TYPES.keys())}")
+            print(f"返回空集合")
+            return set()
     
     def extract_message_types_from_seed(self, seed_content: str, 
                                        protocol_name: str) -> Set[str]:
@@ -491,54 +478,95 @@ class ChatAFLEnricher:
         return all_message_types
     
     def construct_enrichment_prompt(self, sequence: str, 
-                                   missing_message_types: List[str]) -> str:
+                                   missing_message_types: List[str],
+                                   protocol_name: str = "FTP") -> str:
         """
-        构建种子丰富化的提示词
+        构建种子丰富化的提示词（chat 格式）
         
         Args:
             sequence: 原始种子序列
             missing_message_types: 缺失的消息类型列表
+            protocol_name: 协议名称（用于生成协议特定的示例）
             
         Returns:
-            提示词字符串
+            Chat 格式的 messages（JSON 字符串）
         """
         # 限制缺失消息类型的数量
         missing_types = missing_message_types[:self.MAX_ENRICHMENT_MESSAGE_TYPES]
         missing_types_str = ", ".join(missing_types)
         
-        # 转义序列内容（使用 JSON 转义，然后移除外层引号）
-        # 这与原始 C 代码中的 json_object_to_json_string 行为一致
-        sequence_escaped = json.dumps(sequence)
-        sequence_escaped = sequence_escaped[1:-1]  # 移除外层引号
+        # 根据协议生成示例
+        if protocol_name.upper() == "FTP":
+            example = (
+                "Example of correct FTP client request format:\n"
+                "USER ubuntu\n"
+                "PASS ubuntu\n"
+                "LIST\n"
+                "RETR test.txt\n"
+                "QUIT\n\n"
+                "Each line must be: COMMAND [parameter]\n"
+                "Do NOT use 'COMMAND' or 'RESPONSE' keywords. Use actual FTP commands directly."
+            )
+        elif protocol_name.upper() == "RTSP":
+            example = (
+                "Example of correct RTSP client request format:\n"
+                "DESCRIBE rtsp://example.com/test RTSP/1.0\n"
+                "CSeq: 1\n"
+                "User-Agent: TestClient\n\n"
+                "SETUP rtsp://example.com/test/track1 RTSP/1.0\n"
+                "CSeq: 2\n"
+                "Transport: RTP/AVP;unicast;client_port=5000-5001\n\n"
+            )
+        else:
+            example = (
+                "Each line must be a valid protocol command with optional parameters, "
+                "separated by spaces. Do NOT use placeholder keywords like 'COMMAND' or 'RESPONSE'."
+            )
         
         # 计算允许的序列长度（考虑 token 限制）
-        # 原始代码: allowed_tokens = (MAX_TOKENS - strlen(prompt_template) - missing_fields_len)
-        prompt_template_base = (
-            "The following is one sequence of client requests:\n"
+        template_base = (
+            "You are a network protocol expert. Your task is to add missing client request types to an existing sequence.\n\n"
+            "{example}\n\n"
+            "Original sequence:\n"
             "{sequence}\n\n"
-            "Please add the {missing_types} client requests in the proper locations.\n"
-            "IMPORTANT: Return ONLY the modified sequence of client requests, without any explanations, comments, or additional text.\n"
-            "Do not include status codes, server responses, or any descriptive text.\n"
-            "Return only the raw client request sequence:\n"
+            "Task: Add the following missing request types: {missing_types}\n\n"
+            "STRICT REQUIREMENTS:\n"
+            "1. Return ONLY the complete modified sequence, nothing else\n"
+            "2. Use the EXACT same format as the original sequence\n"
+            "3. Each line must be a valid protocol command (e.g., 'USER ubuntu', not 'COMMAND USER')\n"
+            "4. Do NOT include any explanatory text, comments, or descriptions\n"
+            "5. Do NOT include server responses or status codes\n"
+            "6. Do NOT use placeholder keywords like 'COMMAND', 'RESPONSE', 'PARAMETER'\n"
+            "7. Maintain the exact formatting style of the original sequence\n\n"
+            "Return the modified sequence now:"
         )
         
-        # 估算 token 长度（简单估算：1 token ≈ 4 字符）
-        template_base_len = len(prompt_template_base.replace("{sequence}", "").replace("{missing_types}", ""))
+        template_base_len = len(template_base.replace("{sequence}", "").replace("{missing_types}", "").replace("{example}", ""))
         missing_types_len = len(missing_types_str)
-        estimated_template_tokens = (template_base_len + missing_types_len) // 4
+        example_len = len(example)
+        estimated_template_tokens = (template_base_len + missing_types_len + example_len) // 4
         
         # 保留安全边距
-        allowed_sequence_chars = (self.MAX_TOKENS - estimated_template_tokens - 50) * 4
+        allowed_sequence_chars = (self.MAX_TOKENS - estimated_template_tokens - 150) * 4
         
-        if len(sequence_escaped) > allowed_sequence_chars:
-            sequence_escaped = sequence_escaped[:allowed_sequence_chars]
+        if len(sequence) > allowed_sequence_chars:
+            sequence = sequence[:allowed_sequence_chars]
         
-        prompt = prompt_template_base.format(
-            sequence=sequence_escaped,
+        user_message = template_base.format(
+            example=example,
+            sequence=sequence,
             missing_types=missing_types_str
         )
         
-        return prompt
+        messages = [
+            {
+                "role": "system", 
+                "content": "You are a network protocol expert. You generate valid protocol client request sequences. You NEVER use placeholder keywords. You return ONLY the raw protocol commands in the exact format requested."
+            },
+            {"role": "user", "content": user_message}
+        ]
+        
+        return json.dumps(messages)
     
     def extract_sequence_from_response(self, response: str, protocol_name: str) -> str:
         """
@@ -614,6 +642,16 @@ class ChatAFLEnricher:
                 if not re.match(r'^[A-Z]+\s', line):
                     continue
             
+            # 严格过滤：跳过包含占位符关键词的行
+            placeholder_keywords = ['command', 'response', 'parameter', 'value', 'placeholder']
+            if any(keyword in line_lower for keyword in placeholder_keywords):
+                # 检查是否是纯占位符格式（如 "COMMAND USER" 或 "RESPONSE ubuntu"）
+                if re.match(r'^(COMMAND|RESPONSE|PARAMETER|VALUE)\s', line, re.IGNORECASE):
+                    continue
+                # 如果整行只是占位符关键词，跳过
+                if line_lower.strip() in placeholder_keywords:
+                    continue
+            
             # 检查是否是协议命令
             if re.match(protocol_pattern, line) or found_start:
                 found_start = True
@@ -645,7 +683,66 @@ class ChatAFLEnricher:
         cleaned = response.strip()
         # 移除常见的解释性开头
         cleaned = re.sub(r'^(Here|The|So|In|This|Note|Important|Following|Above|Below).*?\n+', '', cleaned, flags=re.IGNORECASE | re.MULTILINE)
+        
+        # 最后验证：如果包含明显的占位符，尝试修复或返回空
+        if re.search(r'\b(COMMAND|RESPONSE|PARAMETER|VALUE)\s+', cleaned, re.IGNORECASE):
+            # 尝试修复：将 "COMMAND USER" 转换为 "USER"
+            cleaned = re.sub(r'COMMAND\s+', '', cleaned, flags=re.IGNORECASE)
+            cleaned = re.sub(r'RESPONSE\s+', '', cleaned, flags=re.IGNORECASE)
+            # 如果修复后仍然有问题，返回空
+            if re.search(r'\b(COMMAND|RESPONSE|PARAMETER|VALUE)\b', cleaned, re.IGNORECASE):
+                return ""
+        
         return cleaned
+    
+    def validate_enriched_sequence(self, sequence: str, protocol_name: str, original_sequence: str) -> bool:
+        """
+        验证丰富后的序列是否符合格式要求
+        
+        Args:
+            sequence: 丰富后的序列
+            protocol_name: 协议名称
+            original_sequence: 原始序列（用于格式对比）
+            
+        Returns:
+            如果序列有效返回 True，否则返回 False
+        """
+        if not sequence or not sequence.strip():
+            return False
+        
+        # 检查是否包含占位符关键词
+        placeholder_pattern = r'\b(COMMAND|RESPONSE|PARAMETER|VALUE|PLACEHOLDER)\s+'
+        if re.search(placeholder_pattern, sequence, re.IGNORECASE):
+            return False
+        
+        # 检查是否包含明显的解释性文字
+        explanation_patterns = [
+            r'^(Here|The|So|In|This|Note|Important|Following|Above|Below)',
+            r'example',
+            r'format:',
+            r'sequence:',
+        ]
+        for pattern in explanation_patterns:
+            if re.search(pattern, sequence, re.IGNORECASE | re.MULTILINE):
+                return False
+        
+        # 对于 FTP，验证命令格式
+        if protocol_name.upper() == "FTP":
+            lines = sequence.split('\n')
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                # FTP 命令应该是：COMMAND [parameter]
+                # 不应该包含 "COMMAND" 或 "RESPONSE" 关键词
+                if re.match(r'^(COMMAND|RESPONSE)\s+', line, re.IGNORECASE):
+                    return False
+                # 应该以 FTP 命令开头
+                if not re.match(r'^[A-Z]+\s', line):
+                    # 允许空行，但不允许其他格式
+                    continue
+        
+        return True
     
     def enrich_sequence(self, sequence: str, 
                        missing_message_types: List[str],
@@ -664,11 +761,11 @@ class ChatAFLEnricher:
         if not missing_message_types:
             return sequence
         
-        prompt = self.construct_enrichment_prompt(sequence, missing_message_types)
+        prompt = self.construct_enrichment_prompt(sequence, missing_message_types, protocol_name)
         
         response = self.chat_with_llm(
             prompt,
-            model_type="instruct",
+            model_type="chat",
             temperature=0.5,
             max_retries=self.ENRICHMENT_RETRIES
         )
@@ -676,7 +773,13 @@ class ChatAFLEnricher:
         if response:
             # 从响应中提取纯种子序列
             cleaned_response = self.extract_sequence_from_response(response, protocol_name)
-            return cleaned_response
+            
+            # 验证序列质量
+            if cleaned_response and self.validate_enriched_sequence(cleaned_response, protocol_name, sequence):
+                return cleaned_response
+            else:
+                print(f"  警告: 生成的序列格式不符合要求，已拒绝")
+                return None
         
         return None
     
@@ -716,7 +819,8 @@ class ChatAFLEnricher:
         return enriched_content
     
     def enrich_seeds(self, seed_dir: str, protocol_name: str,
-                    output_dir: Optional[str] = None) -> Dict[str, str]:
+                    output_dir: Optional[str] = None,
+                    max_enriched_per_file: Optional[int] = None) -> Dict[str, str]:
         """
         丰富种子目录中的所有种子
         
@@ -724,9 +828,10 @@ class ChatAFLEnricher:
             seed_dir: 种子目录路径
             protocol_name: 协议名称
             output_dir: 输出目录，如果为 None 则在原目录创建 enriched 子目录
+            max_enriched_per_file: 每个原始种子最多生成的丰富种子数量（默认使用 MAX_ENRICHED_SEEDS_PER_FILE）
             
         Returns:
-            字典：{原始文件路径: 丰富后的内容}
+            字典：{原始文件路径: 丰富后的内容列表}
         """
         seed_dir = Path(seed_dir)
         if not seed_dir.exists():
@@ -766,13 +871,16 @@ class ChatAFLEnricher:
             return {}
         
         # 步骤4: 准备输出目录
+        max_per_file = max_enriched_per_file if max_enriched_per_file is not None else self.MAX_ENRICHED_SEEDS_PER_FILE
         if output_dir:
             output_dir = Path(output_dir)
             output_dir.mkdir(parents=True, exist_ok=True)
             print(f"输出目录: {output_dir}")
+            print(f"每个种子最多生成: {max_per_file} 个变体")
         
         # 步骤5: 丰富种子（每丰富一个立即保存）
-        print(f"\n步骤3: 开始丰富种子（每次最多添加 {self.MAX_ENRICHMENT_MESSAGE_TYPES} 个消息类型）...")
+        max_per_file = max_enriched_per_file if max_enriched_per_file is not None else self.MAX_ENRICHED_SEEDS_PER_FILE
+        print(f"\n步骤3: 开始丰富种子（每次最多添加 {self.MAX_ENRICHMENT_MESSAGE_TYPES} 个消息类型，每个种子最多生成 {max_per_file} 个变体）...")
         enriched_seeds = {}
         success_count = 0
         skip_count = 0
@@ -801,30 +909,62 @@ class ChatAFLEnricher:
                 skip_count += 1
                 continue
             
-            # 丰富种子
-            enriched_content = self.enrich_sequence(content, seed_missing_types, protocol_name)
-            
-            if enriched_content:
-                enriched_seeds[str(seed_file)] = enriched_content
+            # 为每个种子生成多个变体
+            file_success_count = 0
+            for variant_idx in range(max_per_file):
+                if variant_idx > 0:
+                    print(f"  生成变体 {variant_idx + 1}/{max_per_file}...")
                 
-                # 立即保存到输出目录
-                if output_dir:
-                    original_file = Path(seed_file)
-                    output_file = output_dir / f"enriched_{original_file.name}"
-                    
-                    try:
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            f.write(enriched_content)
-                        print(f"  ✓ 成功丰富并保存: {output_file.name}")
+                # 丰富种子
+                enriched_content = self.enrich_sequence(content, seed_missing_types, protocol_name)
+                
+                if enriched_content:
+                    # 立即保存到输出目录
+                    if output_dir:
+                        original_file = Path(seed_file)
+                        if max_per_file > 1:
+                            # 多个变体时，添加序号
+                            base_name = original_file.stem
+                            extension = original_file.suffix
+                            output_file = output_dir / f"enriched_{base_name}_{variant_idx + 1}{extension}"
+                        else:
+                            # 单个变体时，使用原文件名
+                            output_file = output_dir / f"enriched_{original_file.name}"
+                        
+                        try:
+                            with open(output_file, 'w', encoding='utf-8') as f:
+                                f.write(enriched_content)
+                            
+                            if max_per_file > 1:
+                                print(f"  ✓ 成功生成变体 {variant_idx + 1} 并保存: {output_file.name}")
+                            else:
+                                print(f"  ✓ 成功丰富并保存: {output_file.name}")
+                            
+                            file_success_count += 1
+                            success_count += 1
+                            
+                            # 保存到返回字典
+                            key = f"{seed_file}_v{variant_idx + 1}" if max_per_file > 1 else str(seed_file)
+                            enriched_seeds[key] = enriched_content
+                            
+                        except Exception as e:
+                            print(f"  ✗ 保存失败: {e}")
+                            fail_count += 1
+                    else:
+                        print(f"  ✓ 成功丰富种子（未指定输出目录，未保存）")
+                        file_success_count += 1
                         success_count += 1
-                    except Exception as e:
-                        print(f"  ✗ 保存失败: {e}")
-                        fail_count += 1
+                        key = f"{seed_file}_v{variant_idx + 1}" if max_per_file > 1 else str(seed_file)
+                        enriched_seeds[key] = enriched_content
                 else:
-                    print(f"  ✓ 成功丰富种子（未指定输出目录，未保存）")
-                    success_count += 1
-            else:
-                print(f"  ✗ 丰富种子失败")
+                    if variant_idx == 0:
+                        print(f"  ✗ 丰富种子失败")
+                    else:
+                        print(f"  ✗ 生成变体 {variant_idx + 1} 失败")
+                    fail_count += 1
+                    break  # 如果生成失败，不再尝试生成更多变体
+            
+            if file_success_count == 0:
                 fail_count += 1
         
         # 输出统计信息

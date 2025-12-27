@@ -7,6 +7,7 @@
 """
 
 import sys
+import json
 from chatafl_enricher import ChatAFLEnricher, get_wsl_host_ip
 
 
@@ -46,8 +47,8 @@ def test_local_model():
         print("\n测试 1: 简单对话")
         print("-" * 60)
         response = enricher.chat_with_llm(
-            "Hello, how are you? Please respond briefly.",
-            model_type="instruct",
+            json.dumps([{"role": "user", "content": "Hello, how are you? Please respond briefly."}]),
+            model_type="chat",
             temperature=0.5
         )
         
@@ -57,20 +58,15 @@ def test_local_model():
             print("✗ 失败：未收到响应")
             return False
         
-        print("\n测试 2: 协议消息类型查询")
+        print("\n测试 2: 协议消息类型获取（硬编码字典）")
         print("-" * 60)
-        prompt = enricher.construct_prompt_for_message_types("FTP")
-        print(f"提示词: {prompt[:100]}...")
-        response = enricher.chat_with_llm(
-            prompt,
-            model_type="instruct",
-            temperature=0.5
-        )
+        message_types = enricher.get_protocol_message_types("FTP")
         
-        if response:
-            print(f"✓ 成功！响应: {response[:200]}...")
+        if message_types:
+            print(f"✓ 成功！获取到 {len(message_types)} 个消息类型")
+            print(f"消息类型: {sorted(list(message_types))[:10]}...")  # 显示前10个
         else:
-            print("✗ 失败：未收到响应")
+            print("✗ 失败：未获取到消息类型")
             return False
         
         print("\n" + "=" * 60)

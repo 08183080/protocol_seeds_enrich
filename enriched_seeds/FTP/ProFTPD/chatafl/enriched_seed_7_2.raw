@@ -1,0 +1,6 @@
+USER ubuntu
+PASS ubuntu
+PWD
+SITE CHMOD 644 test.txt
+DELE test.txt
+QUIT

@@ -36,9 +36,9 @@ use_local: false
 # api_key: sk-your-api-key-here
 
 # 使用的模型名称
-# - OpenAI: gpt-3.5-turbo-instruct, gpt-4, 等
+# - OpenAI: gpt-3.5-turbo, gpt-4, 等（使用 chat 模型）
 # - Ollama: llama2, mistral, qwen, 等（需要先下载模型）
-model: gpt-3.5-turbo-instruct
+model: gpt-3.5-turbo
 
 # ==================== 高级配置 ====================
 # 这些配置对应 ChatAFLEnricher 类中的常量
@@ -61,4 +61,10 @@ advanced:
   
   # 获取消息类型的最大重试次数（默认: 5）
   message_type_retries: 5
+  
+  # 每个原始种子最多生成的丰富种子数量（默认: 1）
+  # 设置为大于 1 的值可以为每个种子生成多个变体
+  # 例如设置为 3，每个原始种子会生成 3 个不同的丰富变体
+  # 多个变体的文件名格式: enriched_seed_1_v1.raw, enriched_seed_1_v2.raw, enriched_seed_1_v3.raw
+  max_enriched_per_file: 1
 

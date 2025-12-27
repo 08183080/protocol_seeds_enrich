@@ -1,0 +1,66 @@
+{
+    "FTP": {
+      "Proftpd": [
+        "USER", "PASS", "ACCT", "CWD", "CDUP", "SMNT", "QUIT", "REIN", 
+        "PORT", "PASV", "TYPE", "STRU", "MODE", "RETR", "STOR", "STOU", 
+        "APPE", "ALLO", "REST", "RNFR", "RNTO", "ABOR", "DELE", "RMD", 
+        "MKD", "PWD", "LIST", "NLST", "SITE", "SYST", "STAT", "HELP", 
+        "NOOP", "FEAT", "OPTS", "MDTM", "SIZE", "AUTH", "ADAT", "PBSZ", 
+        "PROT", "CCC", "MIC", "CONF", "ENC", "EPRT", "EPSV", "CLNT", 
+        "CSID", "MLST", "MLSD", "MFMT", "MFF", "MFCT", "LANG", "HOST",
+        "SITE CHMOD", "SITE CHGRP", "SITE MKDIR", "SITE RMDIR", "SITE SYMLINK", "SITE UTIME"
+      ],
+      "PureFTPd": [
+        "USER", "PASS", "ACCT", "CWD", "CDUP", "SMNT", "QUIT", "REIN", 
+        "PORT", "PASV", "TYPE", "STRU", "MODE", "RETR", "STOR", "STOU", 
+        "APPE", "ALLO", "REST", "RNFR", "RNTO", "ABOR", "DELE", "RMD", 
+        "MKD", "PWD", "LIST", "NLST", "SITE", "SYST", "STAT", "HELP", 
+        "NOOP", "FEAT", "OPTS", "MDTM", "SIZE", "AUTH", "PBSZ", "PROT", 
+        "EPRT", "EPSV", "MLST", "MLSD", "MFMT", "ESTA", "ESTP", "HOST", 
+        "LANG", "AVBL", "DSIZ", "SITE CHMOD", "SITE IDLE", "SITE TIME", "SITE HELP"
+      ],
+      "LightFTP": [
+        "USER", "PASS", "QUIT", "PORT", "EPRT", "PASV", "EPSV", "TYPE", 
+        "MODE", "STRU", "RETR", "STOR", "STOU", "APPE", "REST", "ABOR", 
+        "DELE", "RNFR", "RNTO", "CWD", "CDUP", "PWD", "MKD", "RMD", 
+        "LIST", "NLST", "SYST", "STAT", "HELP", "NOOP", "SIZE", "MDTM"
+      ],
+      "BFTPD": [
+        "USER", "PASS", "QUIT", "PORT", "PASV", "TYPE", "STRU", "MODE", 
+        "RETR", "STOR", "STOU", "APPE", "REST", "ABOR", "DELE", "RNFR", 
+        "RNTO", "CWD", "CDUP", "PWD", "MKD", "RMD", "LIST", "NLST", 
+        "SYST", "STAT", "HELP", "NOOP", "FEAT", "SIZE", "MDTM", "SITE CHMOD"
+      ]
+    },
+    "RTSP": {
+      "Live555": [
+        "OPTIONS", "DESCRIBE", "SETUP", "PLAY", "PAUSE", "TEARDOWN", 
+        "GET_PARAMETER", "SET_PARAMETER", "REDIRECT", "ANNOUNCE", "RECORD"
+      ]
+    },
+    "HTTP": {
+      "Lighttpd1": [
+        "GET", "POST", "HEAD", "OPTIONS", "PROPFIND", "REPORT", "CHECKOUT", 
+        "CHECKIN", "UNCHECKOUT", "MKCOL", "COPY", "MOVE", "LOCK", "UNLOCK", 
+        "PUT", "DELETE", "PATCH"
+      ]
+    },
+    "SMTP": {
+      "Exim": [
+        "HELO", "EHLO", "MAIL", "RCPT", "DATA", "QUIT", "RSET", "NOOP", 
+        "VRFY", "EXPN", "HELP", "AUTH", "STARTTLS", "BDAT", "ETRN"
+      ]
+    },
+    "SIP": {
+      "Kamailio": [
+        "INVITE", "ACK", "BYE", "CANCEL", "OPTIONS", "REGISTER", 
+        "SUBSCRIBE", "NOTIFY", "REFER", "INFO", "MESSAGE", 
+        "UPDATE", "PRACK", "PUBLISH"
+      ]
+    },
+    "DAAP": {
+      "forked-daapd": [
+        "GET", "POST","PUT","DELETE","OPTIONS","HEAD","PATCH","TRACE","CONNECT"
+      ]
+    }
+  }

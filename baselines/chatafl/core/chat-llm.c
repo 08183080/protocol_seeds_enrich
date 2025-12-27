@@ -1,26 +1,9 @@
-#define _GNU_SOURCE // asprintf
-#include <stdio.h>
-#include <curl/curl.h>
-#include <string.h>
-#include <ctype.h>
-#include <dirent.h>
-#include <unistd.h>
 
-#include "chat-llm.h"
-#include "alloc-inl.h"
-#include "hash.h"
-
-// -lcurl -ljson-c -lpcre2-8
-// apt install libcurl4-openssl-dev libjson-c-dev libpcre2-dev libpcre2-8-0
 
 #define MAX_TOKENS 2048
 #define CONFIDENT_TIMES 3
 
-struct MemoryStruct
-{
-    char *memory;
-    size_t size;
-};
+
 
 static size_t chat_with_llm_helper(void *contents, size_t size, size_t nmemb, void *userp)
 {

@@ -1,0 +1,13 @@
+USER ubuntu
+PASS ubuntu
+PWD
+SITE CHMOD 755 test.txt
+RNFR test.txt
+RNTO test2.txt
+LIST
+RNFR test2.txt
+RNTO test.txt
+STAT
+RNFR test2.txt
+RNTO test.txt
+QUIT

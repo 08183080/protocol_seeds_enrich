@@ -1,0 +1,6 @@
+USER ubuntu
+PASS ubuntu
+PWD
+SITE CHMOD 644 test.txt
+STOR test.txt
+QUIT

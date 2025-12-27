@@ -133,6 +133,7 @@ def run_from_config(config_path: str = "config.yaml") -> None:
         )
         
         # 应用高级配置（如果提供）
+        max_enriched_per_file = None
         if advanced_config:
             if 'confident_times' in advanced_config:
                 enricher.CONFIDENT_TIMES = advanced_config['confident_times']
@@ -144,11 +145,16 @@ def run_from_config(config_path: str = "config.yaml") -> None:
                 enricher.ENRICHMENT_RETRIES = advanced_config['enrichment_retries']
             if 'message_type_retries' in advanced_config:
                 enricher.MESSAGE_TYPE_RETRIES = advanced_config['message_type_retries']
+            if 'max_enriched_per_file' in advanced_config:
+                max_enriched_per_file = advanced_config['max_enriched_per_file']
+                enricher.MAX_ENRICHED_SEEDS_PER_FILE = max_enriched_per_file
             
             print(f"已应用高级配置")
             print(f"  CONFIDENT_TIMES: {enricher.CONFIDENT_TIMES}")
             print(f"  MAX_ENRICHMENT_MESSAGE_TYPES: {enricher.MAX_ENRICHMENT_MESSAGE_TYPES}")
             print(f"  MAX_ENRICHMENT_CORPUS_SIZE: {enricher.MAX_ENRICHMENT_CORPUS_SIZE}")
+            if max_enriched_per_file is not None:
+                print(f"  MAX_ENRICHED_SEEDS_PER_FILE: {max_enriched_per_file}")
             print("-" * 60)
         
     except ValueError as e:
@@ -165,7 +171,8 @@ def run_from_config(config_path: str = "config.yaml") -> None:
         enriched_seeds = enricher.enrich_seeds(
             seed_dir=seed_dir,
             protocol_name=protocol,
-            output_dir=output_dir
+            output_dir=output_dir,
+            max_enriched_per_file=max_enriched_per_file
         )
         
         print("\n" + "=" * 60)

@@ -1,0 +1,6 @@
+USER ubuntu
+PASS ubuntu
+PWD
+SITE backup on
+RETR test.txt
+QUIT
