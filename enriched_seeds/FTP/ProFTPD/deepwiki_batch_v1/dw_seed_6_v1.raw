@@ -1,0 +1,6 @@
+USER ubuntu
+PASS ubuntu
+SITE COPY /source/file /destination/file
+SITE CPTO /source/file /destination/folder/
+RETR test.txt
+QUIT

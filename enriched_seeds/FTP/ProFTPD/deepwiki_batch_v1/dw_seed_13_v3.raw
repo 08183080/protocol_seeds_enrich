@@ -1,0 +1,7 @@
+USER ubuntu
+PASS ubuntu
+MDTM teste.txt
+SIZE teste.txt
+APPE teste.txt
+STAT
+QUIT

@@ -1,0 +1,8 @@
+USER ubuntu
+PASS ubuntu
+PASV
+LIST
+STAT
+MDTM test.txt
+SIZE test.txt
+QUIT

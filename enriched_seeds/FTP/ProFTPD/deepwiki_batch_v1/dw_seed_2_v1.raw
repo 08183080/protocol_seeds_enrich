@@ -1,0 +1,14 @@
+USER ubuntu
+PASS ubuntu
+MKD test
+CWD test
+PWD
+SITE COPY /source/file.txt /destination/file.txt
+XMKD test
+XCWD test
+XPWD
+CDUP
+XCUP
+SITE CPTO /source/file.txt /new/destination/file.txt
+PWD
+QUIT

@@ -1,0 +1,8 @@
+USER ubuntu
+PASS ubuntu
+MLSD
+MLST .
+DELE test.txt
+MFF test.txt
+MFMT test.txt
+QUIT

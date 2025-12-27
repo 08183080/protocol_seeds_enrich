@@ -1,0 +1,7 @@
+USER ubuntu
+PASS ubuntu
+APPE teste.txt
+SITE COPY /source/file.txt /dest/folder/
+SITE CPTO /source/file.txt /dest/folder/destinationfile.txt
+STAT
+QUIT

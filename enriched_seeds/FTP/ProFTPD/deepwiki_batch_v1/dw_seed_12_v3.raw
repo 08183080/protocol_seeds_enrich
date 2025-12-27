@@ -1,0 +1,13 @@
+USER ubuntu
+PASS ubuntu
+MDTM test.txt
+SIZE test.txt
+RNFR test.txt
+RNTO test2.txt
+LIST
+STAT
+RNFR test2.txt
+RNTO test.txt
+LIST
+HOST myhost.com
+QUIT

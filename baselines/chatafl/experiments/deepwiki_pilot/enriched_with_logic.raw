@@ -1,0 +1,13 @@
+USER ubuntu
+PASS ubuntu
+SYST
+ACCT
+SMNT
+FEAT
+NOOP
+HELP
+STAT
+STRU
+SITE COPY /path/to/source /path/to/destination
+SITE CPTO /path/to/source /path/to/destination
+QUIT

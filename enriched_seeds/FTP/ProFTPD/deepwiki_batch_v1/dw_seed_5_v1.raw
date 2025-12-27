@@ -1,0 +1,5 @@
+USER ubuntu
+PASS ubuntu
+STOR test.txt
+SITE COPY /source/file /dest/path
+SITE CPTO /source/file /specific/destination/path

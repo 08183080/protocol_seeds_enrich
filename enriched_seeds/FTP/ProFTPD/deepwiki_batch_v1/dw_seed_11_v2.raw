@@ -1,0 +1,16 @@
+USER ubuntu
+PASS ubuntu
+MODE S
+RETR test.txt
+MLSD .
+MLST .
+MODE B
+SIZE test.txt
+MLSD ..
+MLST ..
+MODE C
+SIZE test.txt
+MLSD ../.
+MLST ../.
+STAT
+QUIT

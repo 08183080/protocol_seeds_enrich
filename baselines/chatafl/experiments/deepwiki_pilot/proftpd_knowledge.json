@@ -1,0 +1,7 @@
+{
+    "target": "ProFTPD",
+    "custom_commands": ["SITE CPFR", "SITE CPTO", "SITE NEWER", "SITE CHMOD"],
+    "implementation_details": "ProFTPD 的 SITE CPFR/CPTO 指令由 mod_copy 模块处理，涉及内部路径校验，容易在源路径和目标路径切换时产生逻辑漏洞。"
+}
+
+

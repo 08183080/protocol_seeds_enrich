@@ -1,0 +1,14 @@
+USER ubuntu
+PASS ubuntu
+TYPE A
+SIZE test.txt
+MLSD
+TYPE E
+MLST
+TYPE I
+SIZE test.txt
+MLSD
+MLST
+TYPE L 7
+SIZE test.txt
+QUIT

@@ -1,0 +1,106 @@
+{
+  "target": "proftpd/proftpd",
+  "custom_commands": [
+    {
+      "command_name": "MDTM",
+      "handling_module": "mod_core",
+      "critical_logic": "Returns the modification time of a file. This command is not part of RFC959, making it an implementation-specific extension."
+    },
+    {
+      "command_name": "SIZE",
+      "handling_module": "mod_core",
+      "critical_logic": "Returns the size of a file in octets. This command is not part of RFC959, making it an implementation-specific extension."
+    },
+    {
+      "command_name": "FEAT",
+      "handling_module": "mod_facts",
+      "critical_logic": "Requests a list of server-supported features. While now a standard, its implementation in ProFTPD, particularly how `mod_facts` advertises `MLST` support, can be considered implementation-specific. The `FactsAdvertise` directive controls whether `mod_facts` advertises `MLST` via `FEAT`."
+    },
+    {
+      "command_name": "OPTS",
+      "handling_module": "mod_core",
+      "critical_logic": "Specifies options for FTP commands. This command allows for client-specific options, making its handling implementation-specific."
+    },
+    {
+      "command_name": "LANG",
+      "handling_module": "mod_lang",
+      "critical_logic": "Requests a specific language for server responses. This is an extension for internationalization."
+    },
+    {
+      "command_name": "HOST",
+      "handling_module": "mod_vhost",
+      "critical_logic": "Requests a named server, used for virtual hosting. This is an implementation-specific command to support virtual hosts."
+    },
+    {
+      "command_name": "CLNT",
+      "handling_module": "mod_ident",
+      "critical_logic": "Allows clients to offer identification to the server. This is a custom command for client identification."
+    },
+    {
+      "command_name": "RANG",
+      "handling_module": "mod_xfer",
+      "critical_logic": "Specifies a range of bytes to transfer for `RETR` commands. This is an extension for partial file transfers."
+    },
+    {
+      "command_name": "CSID",
+      "handling_module": "mod_ident",
+      "critical_logic": "Client/Server Identification, used by clients and servers to exchange identification information. This is a custom command for identification."
+    },
+    {
+      "command_name": "ADAT",
+      "handling_module": "mod_auth_tls",
+      "critical_logic": "Authentication/security data, part of RFC2228 FTP Security commands. While an RFC, its specific handling and integration with security modules are implementation-specific."
+    },
+    {
+      "command_name": "SITE QUOTA",
+      "handling_module": "mod_quotatab",
+      "critical_logic": "Provides quota information. This is a `SITE` subcommand handled by `mod_quotatab`. The `quotatab_site` function handles the `SITE HELP QUOTA` command, adding a description of `SITE QUOTA` to the output."
+    },
+    {
+      "command_name": "SITE COPY",
+      "handling_module": "mod_quotatab",
+      "critical_logic": "Handles file copying operations. This is a `SITE` subcommand handled by `mod_quotatab` via `quotatab_post_site` and `quotatab_post_site_err` functions, which allocate a new `cmd_rec` for a 'COPY' command and delegate to `quotatab_post_copy` or `quotatab_post_copy_err`."
+    },
+    {
+      "command_name": "SITE CPTO",
+      "handling_module": "mod_quotatab",
+      "critical_logic": "Handles file copying operations to a specific destination. This is a `SITE` subcommand handled by `mod_quotatab` via `quotatab_post_site` and `quotatab_post_site_err` functions. It constructs the target filename from command arguments and delegates to `quotatab_post_copy` or `quotatab_post_copy_err`."
+    },
+    {
+      "command_name": "SITE CHGRP",
+      "handling_module": "mod_site",
+      "critical_logic": "Changes the group of a file or directory. This is a `SITE` subcommand handled by `mod_site`."
+    },
+    {
+      "command_name": "SITE CHMOD",
+      "handling_module": "mod_site",
+      "critical_logic": "Changes the permissions of a file or directory. This is a `SITE` subcommand handled by `mod_site`."
+    },
+    {
+      "command_name": "SITE HELP",
+      "handling_module": "mod_site",
+      "critical_logic": "Provides help information for `SITE` commands. This is a `SITE` subcommand handled by `mod_site`."
+    },
+    {
+      "command_name": "MLSD",
+      "handling_module": "mod_facts",
+      "critical_logic": "Lists directory contents with machine-readable facts (RFC3659). Implemented by `mod_facts`."
+    },
+    {
+      "command_name": "MLST",
+      "handling_module": "mod_facts",
+      "critical_logic": "Lists facts about a specific path (RFC3659). Implemented by `mod_facts`."
+    },
+    {
+      "command_name": "MFF",
+      "handling_module": "mod_facts",
+      "critical_logic": "Modifies file facts. Implemented by `mod_facts` as an extension to RFC3659."
+    },
+    {
+      "command_name": "MFMT",
+      "handling_module": "mod_facts",
+      "critical_logic": "Modifies file modification time. Implemented by `mod_facts` as an extension to RFC3659."
+    }
+  ],
+  "implementation_details": "ProFTPD processes FTP commands through a multi-phase system, where modules register handlers for specific commands and processing phases (<cite repo=\"proftpd/proftpd\" path=\"Command Processing\" start=\"1\" end=\"1\" />). The `cmd_rec` structure holds command details, including arguments and command ID (<cite repo=\"proftpd/proftpd\" path=\"Command Processing\" start=\"1\" end=\"1\" />). Custom commands often extend the `SITE` command, which is dispatched to `site-specific handlers` via `site_dispatch()` (<cite repo=\"proftpd/proftpd\" path=\"Command Processing\" start=\"1\" end=\"1\" />). For instance, `mod_quotatab` handles `SITE QUOTA`, `SITE COPY`, and `SITE CPTO` (<cite repo=\"proftpd/proftpd\" path=\"contrib/mod_quotatab.c\" start=\"4256\" end=\"4297\" />). The `make_ftp_cmd` function in `src/main.c` parses incoming commands, handling special cases like preserving whitespace for `SITE` commands (<cite repo=\"proftpd/proftpd\" path=\"src/main.c\" start=\"561\" end=\"569\" />). Path validation and buffer handling are critical, with mechanisms like `pr_fsio_lstat` used for file information (<cite repo=\"proftpd/proftpd\" path=\"contrib/mod_quotatab.c\" start=\"3613\" end=\"3614\" />) and `CommandBufferSize` controlling maximum command length (<cite repo=\"proftpd/proftpd\" path=\"src/main.c\" start=\"533\" end=\"537\" />). Modules like `mod_facts` implement commands like `MLSD`, `MLST`, `MFF`, and `MFMT` (<cite repo=\"proftpd/proftpd\" path=\"doc/modules/mod_facts.html\" start=\"19\" end=\"23\" />), with `FactsAdvertise` controlling their advertisement via `FEAT` (<cite repo=\"proftpd/proftpd\" path=\"doc/modules/mod_facts.html\" start=\"56\" end=\"58\" />). The `pr_cmd_get_id` function maps command names to numeric IDs for efficient processing (<cite repo=\"proftpd/proftpd\" path=\"include/cmd.h\" start=\"43\" end=\"43\" />)."
+}

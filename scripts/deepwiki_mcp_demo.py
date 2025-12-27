@@ -45,7 +45,8 @@ async def main():
     # 注意：目标仓库需要在 deepwiki.com 上已被索引（公开仓库通常会自动索引或手动访问一次 deepwiki.com/user/repo）
     repo = "proftpd/proftpd"
     q0 = "该协议实现支持的所有命令，请以JSON形式返回。"
-    q = "该协议实现所有的硬编码常量。"
+    q1 = "提取所有非 RFC 标准的命令及其处理模块及其模块的处理逻辑和潜在的漏洞缺陷，并输出为 JSON"
+    q = "提取所有协议实现的全部命令（每个命令只介绍一次；发给服务器的命令），其处理模块，其模块的处理逻辑，并输出为 JSON。其他的额外解释完全不要。只要json文件。中文回答告诉我。"
 
     try:
         response = await call_deepwiki(repo, q)

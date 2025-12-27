@@ -1,0 +1,15 @@
+USER ubuntu
+PASS ubuntu
+SYST
+ACCT
+SMNT
+FEAT
+NOOP
+HELP
+STAT
+STRU
+SITE CPFR /invalid/path/to/source/file
+SITE CPTO /another/invalid/path/to/target/file
+SITE NEWER /yet/another/invalid/path
+SITE CHMOD 777 /very/long/path/to/file/that/could/caused/a/buffer/overflow
+QUIT

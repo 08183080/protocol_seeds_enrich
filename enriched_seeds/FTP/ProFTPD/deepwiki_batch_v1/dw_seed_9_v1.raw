@@ -1,0 +1,8 @@
+USER ubuntu
+PASS ubuntu
+EPSV
+LIST
+STAT
+SITE COPY /source/file.txt /destination/
+SITE CPTO /source/file.txt /specific/destination/
+QUIT

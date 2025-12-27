@@ -1,0 +1,8 @@
+USER ubuntu
+PASS ubuntu
+PASV
+LIST
+SITE COPY /source/file.txt /destination/file.txt
+SITE CPTO /source/file.txt /destination/newfile.txt
+STAT
+QUIT
