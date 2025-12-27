@@ -527,7 +527,7 @@ class ChatAFLEnricher:
         
         # 计算允许的序列长度（考虑 token 限制）
         template_base = (
-            "You are a network protocol expert. Your task is to add missing client request types to an existing sequence in the proper locations.\n\n"
+            "你是一个网络安全专家，你的任务是将缺失的命令全部正确地插入到原来的消息序列当中，同时保留原始序列的基础内容。你只做增量式的插入，同时插入命令的未知要满足协议的状态机。 \n\n"
             "{example}\n\n"
             "Original sequence:\n"
             "{sequence}\n\n"
@@ -563,7 +563,7 @@ class ChatAFLEnricher:
         messages = [
             {
                 "role": "system", 
-                "content": "You are a network protocol expert. You generate valid protocol client request sequences. You NEVER use placeholder keywords. You return ONLY the raw protocol commands in the exact format requested."
+                "content": "You are a network protocol expert. 你需要在原来的消息序列的基础上正确地插入缺失的命令. You NEVER use placeholder keywords. You return ONLY the raw protocol commands in the exact format requested."
             },
             {"role": "user", "content": user_message}
         ]

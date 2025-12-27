@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatAFL 种子可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        input, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .seed-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .seed-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .seed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .seed-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .diff-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .badge-added {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .panel {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+        
+        .panel-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .original { background: #fff3cd; }
+        .enriched { background: #d1ecf1; }
+        
+        .command-list {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .command {
+            padding: 4px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .command.new {
+            background: #d4edda;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+        
+        .command-line {
+            color: #666;
+            font-size: 11px;
+            margin-right: 8px;
+        }
+        
+        .command-cmd {
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .type-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        
+        .type-tag {
+            padding: 4px 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .type-tag.new {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ChatAFL 种子可视化</h1>
+            <div class="controls">
+                <button onclick="loadFromConfig()">从配置文件加载</button>
+                <input type="text" id="seedDir" placeholder="初始种子目录" style="flex: 1; min-width: 200px;">
+                <input type="text" id="enrichedDir" placeholder="丰富后种子目录" style="flex: 1; min-width: 200px;">
+                <input type="text" id="protocol" placeholder="协议 (HTTP)" value="HTTP" style="width: 100px;">
+                <button onclick="loadSeeds()">加载对比</button>
+            </div>
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat-item">协议: <span class="stat-value" id="statProtocol">-</span></div>
+                <div class="stat-item">种子对数量: <span class="stat-value" id="statCount">0</span></div>
+                <div class="stat-item">初始种子目录: <span class="stat-value" id="statSeedDir">-</span></div>
+                <div class="stat-item">丰富后目录: <span class="stat-value" id="statEnrichedDir">-</span></div>
+            </div>
+        </header>
+        
+        <div id="content">
+            <div class="empty">请点击"从配置文件加载"或手动输入路径后点击"加载对比"</div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadFromConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                if (config.error) {
+                    alert('错误: ' + config.error);
+                    return;
+                }
+                
+                document.getElementById('seedDir').value = config.seed_dir || '';
+                document.getElementById('enrichedDir').value = config.enriched_dir || '';
+                document.getElementById('protocol').value = config.protocol || 'HTTP';
+                
+                await loadSeeds();
+            } catch (error) {
+                alert('加载配置失败: ' + error.message);
+            }
+        }
+        
+        async function loadSeeds() {
+            const seedDir = document.getElementById('seedDir').value;
+            const enrichedDir = document.getElementById('enrichedDir').value;
+            const protocol = document.getElementById('protocol').value || 'HTTP';
+            
+            if (!seedDir) {
+                alert('请输入初始种子目录');
+                return;
+            }
+            
+            document.getElementById('content').innerHTML = '<div class="loading">加载中...</div>';
+            
+            try {
+                const response = await fetch('/api/load', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ seed_dir: seedDir, enriched_dir: enrichedDir, protocol: protocol })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('content').innerHTML = `<div class="empty">错误: ${data.error}</div>`;
+                    return;
+                }
+                
+                // 更新统计信息
+                document.getElementById('statProtocol').textContent = data.protocol;
+                document.getElementById('statCount').textContent = data.total_pairs;
+                document.getElementById('statSeedDir').textContent = data.seed_dir;
+                document.getElementById('statEnrichedDir').textContent = data.enriched_dir;
+                document.getElementById('stats').style.display = 'flex';
+                
+                // 渲染结果
+                renderResults(data.results);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<div class="empty">加载失败: ${error.message}</div>`;
+            }
+        }
+        
+        function renderResults(results) {
+            if (!results || results.length === 0) {
+                document.getElementById('content').innerHTML = '<div class="empty">未找到对比数据</div>';
+                return;
+            }
+            
+            const html = results.map(result => {
+                const c = result.comparison;
+                const diff = c.differences;
+                
+                // 渲染命令列表
+                const renderCommands = (commands, originalCommands) => {
+                    const origLines = new Set((originalCommands || []).map(c => c.full));
+                    return commands.map(cmd => {
+                        const isNew = !origLines.has(cmd.full);
+                        return `
+                            <div class="command ${isNew ? 'new' : ''}">
+                                <span class="command-line">${cmd.line}:</span>
+                                <span class="command-cmd">${cmd.command}</span>
+                                ${cmd.parameter ? `<span>${cmd.parameter}</span>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                };
+                
+                // 渲染消息类型列表
+                const renderTypes = (types, addedTypes) => {
+                    const addedSet = new Set(addedTypes || []);
+                    return types.map(type => `
+                        <span class="type-tag ${addedSet.has(type) ? 'new' : ''}">${type}</span>
+                    `).join('');
+                };
+                
+                return `
+                    <div class="seed-card">
+                        <div class="seed-header">
+                            <div>
+                                <span class="seed-name">${result.seed_name}</span>
+                                <span class="diff-badge badge-added">+${diff.type_count_increase} 类型, +${diff.command_count_increase} 命令</span>
+                            </div>
+                            <div style="font-size: 12px; color: #666;">${result.enriched_name}</div>
+                        </div>
+                        
+                        <div class="comparison">
+                            <div class="panel original">
+                                <div class="panel-header">初始种子 (${c.original.total_types} 类型, ${c.original.total_commands} 命令)</div>
+                                <div class="type-list">
+                                    ${renderTypes(c.original.message_types, [])}
+                                </div>
+                                <div class="command-list" style="margin-top: 10px;">
+                                    ${renderCommands(c.original.commands, null)}
+                                </div>
+                            </div>
+                            
+                            <div class="panel enriched">
+                                <div class="panel-header">丰富后种子 (${c.enriched.total_types} 类型, ${c.enriched.total_commands} 命令)</div>
+                                <div class="type-list">
+                                    ${renderTypes(c.enriched.message_types, diff.added_types)}
+                                </div>
+                                <div class="command-list" style="margin-top: 10px;">
+                                    ${renderCommands(c.enriched.commands, c.original.commands)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('content').innerHTML = `<div class="seed-list">${html}</div>`;
+        }
+        
+        // 页面加载时尝试从配置加载
+        window.addEventListener('load', () => {
+            // 不自动加载，让用户手动触发
+        });
+    </script>
+</body>
+</html>
+

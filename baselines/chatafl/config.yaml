@@ -1,16 +1,17 @@
 # 协议名称 (如 RTSP, FTP, HTTP, SMTP, SIP)
-protocol: HTTP
+protocol: SMTP
 
 # 种子文件目录路径
-seed_dir: /home/apple/ProSeedsBench/seeds/HTTP/Lighttpd1/in-lighttpd1
+seed_dir: /home/apple/ProSeedsBench/seeds/SMTP/Exim/in-exim
 # ==================== 可选配置 ====================
 
 # 输出目录路径（如果不设置，默认为 seed_dir/enriched）
-output_dir: /home/apple/ProSeedsBench/enriched_seeds/HTTP/Lighttpd1/chatafl-2025-12-27
+output_dir: /home/apple/ProSeedsBench/enriched_seeds/SMTP/Exim/chatafl-2025-12-27-test
 
 # 是否使用本地模型（如 Ollama）（默认: false）
 # 如果设置为 true，将使用本地部署的模型，api_key 可以为空
 use_local: true
+# use_local: false
 
 # api_url: https://www.dmxapi.com/v1
 api_url: http://localhost:11434/v1
@@ -32,6 +33,6 @@ advanced:
   max_enrichment_corpus_size: 20 #检查添加的最大消息的数量
   enrichment_retries: 5 #丰富种子失败的最大重试次数
   message_type_retries: 5 #获取消息类型失败的最大重试次数
-  max_enriched_per_file: 5 #每个种子丰富的最大数量
-  temperature: 2 # LLM 温度参数（0.0-2.0，值越大输出越随机，默认0.5）
+  max_enriched_per_file: 50 #每个种子丰富的最大数量
+  temperature: 0.5 # LLM 温度参数（0.0-2.0，值越大输出越随机，默认0.5）
 
