@@ -1,0 +1,10 @@
+EHLO localhost
+HELO localhost
+HELP
+MAIL FROM:<ubuntu@ubuntu>
+RCPT TO:<ubuntu@ubuntu>
+EXPN <user@domain.com>
+BDAT 10
+.
+BDAT 5
+QUIT

@@ -1,0 +1,6 @@
+OPTIONS /hello.txt HTTP/1.1
+Host: 127.0.0.1:8080
+User-Agent: curl/8.0.1
+Accept: */*
+PATCH /hello.txt HTTP/1.1
+CONNECT 127.0.0.1:443 HTTP/1.1

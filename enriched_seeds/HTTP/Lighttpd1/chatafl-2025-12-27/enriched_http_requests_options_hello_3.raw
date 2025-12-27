@@ -1,7 +1,0 @@
-OPTIONS /hello.txt HTTP/1.1
-Host: 127.0.0.1:8080
-User-Agent: curl/8.0.1
-Accept: */*
-COPY /originfile.txt /destinationfile.txt HTTP/1.1
-MOVE /sourcefolder/oldname.txt /sourcefolder/newname.txt HTTP/1.1
-PATCH /api/data/123 HTTP/1.1

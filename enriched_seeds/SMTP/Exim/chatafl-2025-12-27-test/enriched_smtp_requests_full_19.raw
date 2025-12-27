@@ -1,0 +1,10 @@
+EHLO localhost
+HELP
+MAIL FROM:<ubuntu@ubuntu>
+NOOP
+RCPT TO:<ubuntu@ubuntu>
+EXPN
+DATA
+abc
+.
+QUIT

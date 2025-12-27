@@ -1,0 +1,12 @@
+USER ubuntu
+PASS ubuntu
+MODE S
+RETR test.txt
+MODE B
+SIZE test.txt
+MODE C
+MDTM test.txt
+REST 0
+SIZE test.txt
+STAT
+QUIT

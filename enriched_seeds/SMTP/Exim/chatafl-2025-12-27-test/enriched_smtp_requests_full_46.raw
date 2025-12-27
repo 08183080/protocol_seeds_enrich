@@ -1,0 +1,10 @@
+EHLO localhost
+AUTH PLAIN
+MAIL FROM:<ubuntu@ubuntu>
+RSET
+VRFY ubuntu
+RCPT TO:<ubuntu@ubuntu>
+DATA
+abc
+.
+QUIT

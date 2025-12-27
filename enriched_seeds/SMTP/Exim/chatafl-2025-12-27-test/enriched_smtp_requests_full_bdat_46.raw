@@ -1,0 +1,9 @@
+HELO localhost
+MAIL FROM:<ubuntu@ubuntu>
+RSET
+RCPT TO:<ubuntu@ubuntu>
+VRFY ubuntu@ubuntu
+BDAT 10
+.
+BDAT 5
+QUIT

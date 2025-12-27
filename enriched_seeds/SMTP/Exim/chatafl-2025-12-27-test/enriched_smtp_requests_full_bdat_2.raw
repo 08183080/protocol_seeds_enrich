@@ -1,0 +1,10 @@
+EHLO localhost
+MAIL FROM:<ubuntu@ubuntu>
+RCPT TO:<ubuntu@ubuntu>
+NOOP
+BDAT 10
+.
+EXPN ubuntu@ubuntu
+RSET
+BDAT 5
+QUIT

@@ -1,0 +1,7 @@
+USER ubuntu
+PASS ubuntu
+LIST
+APPE teste.txt
+STRU F
+STAT
+QUIT

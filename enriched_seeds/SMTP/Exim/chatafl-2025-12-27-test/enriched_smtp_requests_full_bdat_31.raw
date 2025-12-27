@@ -1,0 +1,9 @@
+HELO localhost
+AUTH PLAIN
+MAIL FROM:<ubuntu@ubuntu>
+RCPT TO:<ubuntu@ubuntu>
+DATA
+BDAT 10
+.
+BDAT 5
+QUIT

@@ -1,0 +1,10 @@
+EHLO localhost
+HELO localhost
+MAIL FROM:<ubuntu@ubuntu>
+RCPT TO:<ubuntu@ubuntu>
+RSET
+DATA
+abc
+.
+QUIT
+AUTH PLAIN
